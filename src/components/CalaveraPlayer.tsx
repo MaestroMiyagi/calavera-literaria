@@ -7,83 +7,57 @@ interface CalaveraPlayerProps {
 
 type PlayState = 'idle' | 'playing' | 'paused' | 'ended';
 
+// Duraciones de cada estrofa en milisegundos (obtenidas de los archivos de audio)
+const STANZA_DURATIONS = [
+  9330,   // stanza1: 9.33 segundos
+  11749,  // stanza2: 11.75 segundos
+  11590,  // stanza3: 11.59 segundos
+  16951,  // stanza4: 16.95 segundos
+  13719,  // stanza5: 13.72 segundos
+  19297,  // stanza6: 19.30 segundos
+  10049,  // stanza7: 10.05 segundos
+  9500,   // stanza8: 9.50 segundos
+  10283,  // stanza9: 10.28 segundos
+  11187   // stanza10: 11.19 segundos
+];
+
 export default function CalaveraPlayer({ stanzas }: CalaveraPlayerProps) {
   const [playState, setPlayState] = useState<PlayState>('idle');
   const [currentStanzaIndex, setCurrentStanzaIndex] = useState(0);
   const [showAll, setShowAll] = useState(false);
 
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
-  const fallbackTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const stanzaTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     return () => {
-      // Cleanup al desmontar
       if (currentAudioRef.current) {
         currentAudioRef.current.pause();
         currentAudioRef.current = null;
       }
-      if (fallbackTimerRef.current) {
-        clearTimeout(fallbackTimerRef.current);
+      if (stanzaTimerRef.current) {
+        clearTimeout(stanzaTimerRef.current);
       }
     };
   }, []);
 
   const playStanza = (index: number) => {
     if (index >= stanzas.length) {
-      // Terminamos todas las estrofas
       setPlayState('ended');
       return;
     }
-
     setCurrentStanzaIndex(index);
-
-    // Crear el audio para esta estrofa
     const audioPath = `/sounds/stanza${index + 1}.wav`;
     const audio = new Audio(audioPath);
     currentAudioRef.current = audio;
-
-    let audioLoaded = false;
-    let fallbackTimer: NodeJS.Timeout | null = null;
-
-    // Cuando el audio termine, pasar a la siguiente estrofa
-    const handleEnded = () => {
-      if (fallbackTimer) clearTimeout(fallbackTimer);
+    audio.play().catch((err) => {
+      console.warn(`Error reproduciendo audio de estrofa ${index + 1}:`, err);
+    });
+    const duration = STANZA_DURATIONS[index];
+    const timer = setTimeout(() => {
       playStanza(index + 1);
-    };
-
-    // Si el audio carga correctamente, reproducirlo
-    const handleCanPlay = () => {
-      audioLoaded = true;
-      audio.play().catch((err) => {
-        console.warn(`Error reproduciendo audio de estrofa ${index + 1}:`, err);
-        // Si falla la reproducción, usar fallback
-        useFallback();
-      });
-    };
-
-    // Si el audio no se puede cargar, usar fallback
-    const handleError = () => {
-      console.warn(`No se pudo cargar audio para estrofa ${index + 1}, usando fallback de 10 segundos`);
-      useFallback();
-    };
-
-    const useFallback = () => {
-      fallbackTimer = setTimeout(() => {
-        playStanza(index + 1);
-      }, 10000); // 10 segundos de fallback
-      fallbackTimerRef.current = fallbackTimer;
-    };
-
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('canplay', handleCanPlay);
-    audio.addEventListener('error', handleError);
-
-    // Si después de 500ms no ha cargado, asumir que no existe y usar fallback
-    setTimeout(() => {
-      if (!audioLoaded) {
-        handleError();
-      }
-    }, 500);
+    }, duration);
+    stanzaTimerRef.current = timer;
   };
 
   const handlePlay = () => {
@@ -97,8 +71,8 @@ export default function CalaveraPlayer({ stanzas }: CalaveraPlayerProps) {
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
     }
-    if (fallbackTimerRef.current) {
-      clearTimeout(fallbackTimerRef.current);
+    if (stanzaTimerRef.current) {
+      clearTimeout(stanzaTimerRef.current);
     }
     setPlayState('paused');
   };
@@ -106,12 +80,10 @@ export default function CalaveraPlayer({ stanzas }: CalaveraPlayerProps) {
   const handleResume = () => {
     setPlayState('playing');
     if (currentAudioRef.current && currentAudioRef.current.paused) {
-      // Si hay un audio pausado, continuar
       currentAudioRef.current.play().catch((err) => {
         console.warn('Error al reanudar:', err);
       });
     } else {
-      // Si no hay audio o no se puede reanudar, continuar desde la estrofa actual
       playStanza(currentStanzaIndex);
     }
   };
@@ -121,8 +93,8 @@ export default function CalaveraPlayer({ stanzas }: CalaveraPlayerProps) {
       currentAudioRef.current.pause();
       currentAudioRef.current = null;
     }
-    if (fallbackTimerRef.current) {
-      clearTimeout(fallbackTimerRef.current);
+    if (stanzaTimerRef.current) {
+      clearTimeout(stanzaTimerRef.current);
     }
     setPlayState('idle');
     setCurrentStanzaIndex(0);
