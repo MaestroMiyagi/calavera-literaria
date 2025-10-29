@@ -1,16 +1,82 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import CalaveraPlayer from '../components/CalaveraPlayer.tsx';
+import '../styles/global.css';
 
+// Calavera agrupada en estrofas
+const stanzas = [
+  [
+    "Estaban los programadores en la oficina,",
+    "dándole duro y tupido a la tecla;",
+    "ya ni los perros se oían en la esquina,",
+    "¡solo el monitor que sus caras proyecta!"
+  ],
+  [
+    "Pasaban de las once cuando un ruido los paró en seco.",
+    "Se oyó en la cocina un bug macabro,",
+    "como un error de sistema o algo macabro...",
+    "¡y hasta el server marcó un paro!",
+    "un lamento boliviano..."
+  ],
+  [
+    "Adrián, bien sacado de onda, fue al pasillo,",
+    "pensando que era Aarón, el gandalla pillo;",
+    "más vio un ser flaco y amarillo:",
+    "¡era la Calaca, la mera-mera huesuda, con su cable amarillo!"
+  ],
+  [
+    "La huesuda traía una laptop sin batería,",
+    "decía que el más allá tenía \"pantalla azul\" todo el día.",
+    "Era la Pálida, ¡con cara de enojada!",
+    "—¡Estoy hasta la madre de esta gente pasada!,",
+    "gritaba la Flaca, mentando al desgraciado.",
+    "¡Alguien comió mi gansito y no lo ha regresado!"
+  ],
+  [
+    "—¡Ando buscando al infeliz ratero! —,",
+    "le dijo a Adrián, alterada con voz del más allá,",
+    "—¡Alguien se clavó de este refrigerador mi gansito",
+    "y dejó un merge conflict en mi jornada!,",
+    "¡Qué poca... vergüenza me da!"
+  ],
+  [
+    "Adrián se puso blanco como el gis:",
+    "—Señora Flaca, ¡yo no fui, se lo juro, miss!;",
+    "¡llevo ocho horas debuggeando código,",
+    "de tanto programar ya ni carburo, ni pienso lógico!",
+    "dijo el pobre Adrián, ya medio frío.",
+    "—¡A lo mejor fue Aarón, o el tal Darío!",
+    "(El pobre Adrián ya estaba de chismoso)."
+  ],
+  [
+    "— Nos quedamos a arreglar un merge conflict,",
+    "¡un bug que ni el diablo predijo en su script!",
+    "Nos quedamos a arreglar un desmadrito,",
+    "¡una instancia que otro borro!"
+  ],
+  [
+    "La Muerte lo midió de arriba abajo:",
+    "—Hoy se salvan por 'nerds' y por metiches,",
+    "pero si siguen con tanto trabajo,",
+    "¡mañana los borro del sistema de switches!"
+  ],
+  [
+    "La Calaca se fue echando mil pestes,",
+    "jurando que al que se comió el gansito",
+    "¡se lo iba a cargar el firewall este martes,",
+    "derechito al panteón... por gorrón y maldito!"
+  ],
+  [
+    "Apenas se peló la Tilica enojada,",
+    "entró Aaron chiflando con risa disimulada:",
+    "—¿Qué onda, chavos? Vámonos que aquí espantan—",
+    "¡Y con la envoltura del gansito en la mano!"
+  ]
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Calavera Literaria - Los Programadores">
+	<main class="relative z-10 h-screen w-screen">
+		<CalaveraPlayer client:load stanzas={stanzas} />
+	</main>
+</Layout>
